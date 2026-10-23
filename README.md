@@ -7,11 +7,22 @@ be well-documented to ensure anyone can come in and easily learn.
 
 ## Application architecture
 
-![image](https://github.com/docker/getting-started-todo-app/assets/313480/c128b8e4-366f-4b6f-ad73-08e6652b7c4d)
-
+```mermaid
+flowchart TD
+  browser("User's browser")
+  proxy["Traefik reverse proxy"]
+  client["Frontend: React, Vite, Sass"]
+  backend["Backend: Node.js API server"]
+  sqlite[("SQLite database file")]
+  browser -->|"localhost:3000"| proxy
+  proxy -->|"/api"| backend
+  proxy -->|"everything else"| client
+  backend --> sqlite
+```
 
 This sample application is a simple React frontend that receives data from a
-Node.js backend. 
+Node.js backend. The backend stores its data in a single SQLite file, using
+the SQLite module built into Node.js, so there is no database server to run.
 
 When the application is packaged and shipped, the frontend is compiled into
 static HTML, CSS, and JS and then bundled with the backend where it is then
@@ -21,7 +32,10 @@ with this sample app.
 During development, since the backend and frontend need different dev tools, 
 they are split into two separate services. This allows [Vite](https://vitejs.dev/) 
 to manage the React app while [nodemon](https://nodemon.io/) works with the 
-backend. With containers, it's easy to separate the development needs!
+backend. A [Traefik](https://traefik.io/) reverse proxy sends every request to
+`/api` to the backend and everything else to Vite, so the browser sees a single
+origin, just like in production. With containers, it's easy to separate the
+development needs!
 
 ## Development
 
@@ -34,18 +48,13 @@ cd getting-started-todo-app
 docker compose up --watch
 ```
 
-You'll see several container images get downloaded from Docker Hub and, after a
-moment, the application will be up and running! No need to install or configure
-anything on your machine!
+The container images get downloaded and built and, after a moment, the
+application will be up and running! No need to install or configure anything on your machine!
 
-Simply open to [http://localhost](http://localhost) to see the app up and running!
+Simply open [http://localhost:3000](http://localhost:3000) to see the app up and running!
 
 Any changes made to either the backend or frontend should be seen immediately
 without needing to rebuild or restart the containers.
-
-To help with the database, the development stack also includes phpMyAdmin, which
-can be accessed at [http://db.localhost](http://db.localhost) (most browsers will 
-resolve `*.localhost` correctly, so no hosts file changes should be required).
 
 ### Tearing it down
 
@@ -54,3 +63,7 @@ When you're done, simply remove the containers by running the following command:
 ```
 docker compose down
 ```
+
+Your todo items are kept in the `todo-sqlite-data` volume, so they'll still be
+there the next time you start the app. To start over with an empty list, add
+`--volumes` to the command above.
