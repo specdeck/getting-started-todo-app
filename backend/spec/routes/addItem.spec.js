@@ -1,9 +1,7 @@
 const db = require('../../src/persistence');
 const addItem = require('../../src/routes/addItem');
 const ITEM = { id: 12345 };
-const { v4: uuid } = require('uuid');
-
-jest.mock('uuid', () => ({ v4: jest.fn() }));
+const crypto = require('crypto');
 
 jest.mock('../../src/persistence', () => ({
     removeItem: jest.fn(),
@@ -17,7 +15,7 @@ test('it stores item correctly', async () => {
     const req = { body: { name } };
     const res = { send: jest.fn() };
 
-    uuid.mockReturnValue(id);
+    jest.spyOn(crypto, 'randomUUID').mockReturnValue(id);
 
     await addItem(req, res);
 

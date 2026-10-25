@@ -5,7 +5,7 @@
 # and provides common configuration for all stages, such as the working dir.
 # The slim variant is enough, since no dependency needs a compiler to install.
 ###################################################
-FROM node:22-slim AS base
+FROM node:26-slim AS base
 WORKDIR /usr/local/app
 
 ################## CLIENT STAGES ##################
@@ -20,7 +20,7 @@ FROM base AS client-base
 COPY client/package.json client/package-lock.json ./
 COPY .npmrc .
 RUN npm ci
-COPY client/.eslintrc.cjs client/index.html client/vite.config.js ./
+COPY client/eslint.config.js client/index.html client/vite.config.js ./
 COPY client/public ./public
 COPY client/src ./src
 
